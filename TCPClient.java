@@ -14,7 +14,10 @@ public class TCPClient {
 	public static void main(String args[]) {
 		try {
 
+			/* request of each client that complete */
 			int requestcomplete = 0;
+
+			/* maximum requests for each client */
 			int maxrequestnum = 300;
 
 			String message, response;
@@ -25,24 +28,48 @@ public class TCPClient {
 
 			while (true) {
 
-				String handshake = "HELLO " +requestcomplete+ " ";
+				/* hello message */
+				String handshake = "HELLO " + requestcomplete + " ";
+
+				/* device ip */
 				String ip = Inet4Address.getLocalHost().getHostAddress() + " ";
+
+				/* hostname */
 				String hostname = Inet4Address.getLocalHost().getHostName() + " ";
+
+				/* port */
 				String port = String.valueOf(socket.getPort()) + " ";
 
+				/* full message to stream to server */
 				message = handshake + ip + port + hostname + System.lineSeparator();
 
+				/*
+				 * Initialization of stopwatch counting the latency of each
+				 * request
+				 */
 				Stopwatch comlatency = new Stopwatch();
+
+				/* sending request to server */
 				output.writeBytes(message);
 
+				/* client reading servers response */
 				response = server.readLine();
-				double latency = comlatency.elapsedTime();
-				
-				requestcomplete++;
-				System.out.println(requestcomplete+" "+response);
-				//System.out.println("latency =" + latency);
 
-			
+				/* the time that response come to client */
+				double latency = comlatency.elapsedTime();
+
+				/* Increment request counter */
+				requestcomplete++;
+
+				/* Print response to client console */
+				System.out.println(requestcomplete + " " + response);
+
+				// System.out.println("latency =" + latency);
+
+				/*
+				 * if the request number reach maximum request number client
+				 * socket close
+				 */
 				if (requestcomplete == maxrequestnum) {
 					socket.close();
 					break;
