@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Inet4Address;
 import java.net.Socket;
-import java.util.Date;
-import java.util.Random;
 
 public class TCPClient {
 
@@ -19,13 +17,24 @@ public class TCPClient {
 
 			/* maximum requests for each client */
 			int maxrequestnum = 300;
+			
+			
 
+			//////////////////////////////////////////////////////////////////////////////////////////////
+			/* opening the socket */
 			String message, response;
 			Socket socket = new Socket("localhost", 90);
-
+            //////////////////////////////////////////////////////////////////////////////////////////////
+			
+			//////////////////////////////////////////////////////////////////////////////////////////////
+			/* creating input/output stream */
 			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
 			BufferedReader server = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
+            //////////////////////////////////////////////////////////////////////////////////////////////
+			
+			
+			
+			
 			while (true) {
 
 				/* hello message */
@@ -64,13 +73,16 @@ public class TCPClient {
 				/* Print response to client console */
 				System.out.println(requestcomplete + " " + response);
 
-				// System.out.println("latency =" + latency);
+				System.out.println("latency =" + latency);
 
 				/*
 				 * if the request number reach maximum request number client
 				 * socket close
 				 */
 				if (requestcomplete == maxrequestnum) {
+					
+					output.close();
+					server.close();
 					socket.close();
 					break;
 				}
