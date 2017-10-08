@@ -23,9 +23,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * This class has the server ThreadPool establishing connection
- * with clients and accepting socket 
-  * 
+ * This class has the server ThreadPool establishing connection with clients and
+ * accepting socket
+ * 
  * @author Nikolas Chatzigiannis nchatz03@cs.ucy.ac.cy
  * @version 1
  * @since 1
@@ -64,10 +64,9 @@ public class MultiThreadedTCPServer {
 
 			/** initialize time watch for server */
 			long initiallize = System.currentTimeMillis();
-			
+
 			ServerGlobal.SERVER_INIT_TIME = initiallize;
-			
-			
+
 			while (true) {
 
 				//////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,8 +75,8 @@ public class MultiThreadedTCPServer {
 				//////////////////////////////////////////////////////////////////////////////////////////////
 
 				/* Submit client to a thread */
-				TCP_WORKER_SERVICE.submit(new TCPWorker(client));
 				ServerGlobal.CLIENT_SUBMIT++;
+				TCP_WORKER_SERVICE.submit(new TCPWorker(client, ServerGlobal.CLIENT_SUBMIT));
 
 			}
 		} catch (IOException e) {

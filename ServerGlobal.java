@@ -65,6 +65,9 @@ public class ServerGlobal {
 	/** Maximum request that server can satisfy per client 300 **/
 	static int CLIENT_MAX_REQUEST = 300;
 	
+	/** Memory utilazation **/
+	static long MEMUTIL =0;
+	
 	/**
 	 * Server analysis method 
 	 * <p>
@@ -93,9 +96,10 @@ public class ServerGlobal {
 		file.printf("Server's maximum number of threads        : %d THREADS\n", MAXTHREAD);
 		file.printf("Total Client's requests Server satisfy    : %d REQUESTS\n", REQUESTS_REACHED);
 		file.printf("Total time Server Used (Seconds)          : %d SECONDS\n", THROUGHPUT_MILESTONE);
-		file.printf("Server's Throughput (Requests per Second) : %f REQUESTS/SECONDS\n",
-				(double) (REQUESTS_REACHED / THROUGHPUT_MILESTONE));
+		file.printf("Server's Throughput (Requests per Second) : %d REQUESTS/SECONDS\n",
+				(int) (REQUESTS_REACHED / THROUGHPUT_MILESTONE));
 		file.printf("Server reach Limit                        : %s\n", LIMITFLAG);
+		file.printf("Server memory utilazation                 : %d\n", (int) (MEMUTIL / THROUGHPUT_MILESTONE));
 		file.printf("\n");
 		file.printf("------------------------------------------------------------------------------\n");
 		file.close();

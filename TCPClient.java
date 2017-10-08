@@ -1,96 +1,198 @@
+/**Copyright [2017] [Nikolas Chatzigiannis]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *you may not use this file except in compliance with the License.
+ *You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *Unless required by applicable law or agreed to in writing, software
+ *distributed under the License is distributed on an "AS IS" BASIS,
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *See the License for the specific language governing permissions and
+ *limitations under the License.
+ */
+
 package com.tcp.client;
 
+//import statements
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Inet4Address;
 import java.net.Socket;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * This class has is the TCPClient that sending request to the server and
+ * waiting for response when the clients request limit reached the client
+ * disconnect and create analysis
+ * 
+ * @author Nikolas Chatzigiannis nchatz03@cs.ucy.ac.cy
+ * @version 1
+ * @since 1
+ */
 public class TCPClient {
 
-	public static void main(String args[]) {
-		try {
+	/**
+	 * Inner class of client extended by thread to create threads an implements
+	 * runnable to use the threads
+	 * 
+	 * @author Nikolas Chatzigiannis nchatz03@cs.ucy.ac.cy
+	 * @version 1
+	 * @since 1
+	 */
+	public static class Client extends Thread implements Runnable {
 
-			/* request of each client that complete */
-			int requestcomplete = 0;
+		/**
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Thread#run()
+		 */
+		@Override
+		public void run() {
 
-			/* maximum requests for each client */
-			int maxrequestnum = 300;
-			
-			
+			try {
 
-			//////////////////////////////////////////////////////////////////////////////////////////////
-			/* opening the socket */
-			String message, response;
-			Socket socket = new Socket("localhost", 90);
-            //////////////////////////////////////////////////////////////////////////////////////////////
-			
-			//////////////////////////////////////////////////////////////////////////////////////////////
-			/* creating input/output stream */
-			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
-			BufferedReader server = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            //////////////////////////////////////////////////////////////////////////////////////////////
-			
-			
-			
-			
-			while (true) {
+				//////////////////////////////////////////////////////////////////////////////////////////////
+				/* opening the socket */
+				String message, response;
+				@SuppressWarnings("resource")
+				Socket socket = new Socket(ClientGlobal.INSTANCE_IP, ClientGlobal.PORT);
+				//////////////////////////////////////////////////////////////////////////////////////////////
 
-				/* hello message */
-				String handshake = "HELLO " + requestcomplete + " ";
+				//////////////////////////////////////////////////////////////////////////////////////////////
+				/* creating input/output stream */
+				DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+				BufferedReader server = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				//////////////////////////////////////////////////////////////////////////////////////////////
 
-				/* device ip */
-				String ip = Inet4Address.getLocalHost().getHostAddress() + " ";
-
-				/* hostname */
-				String hostname = Inet4Address.getLocalHost().getHostName() + " ";
-
-				/* port */
-				String port = String.valueOf(socket.getPort()) + " ";
-
-				/* full message to stream to server */
-				message = handshake + ip + port + hostname + System.lineSeparator();
-
+				//////////////////////////////////////////////////////////////////////////////////////////////
 				/*
-				 * Initialization of stopwatch counting the latency of each
-				 * request
+				 * mutex enclosure in order to protect id of the user from
+				 * interruption
 				 */
-				Stopwatch comlatency = new Stopwatch();
+				final Lock _mutexClientID = new ReentrantLock(true);
 
-				/* sending request to server */
-				output.writeBytes(message);
+				_mutexClientID.lock();
+				int id = ClientGlobal.ID;
+				ClientGlobal.ID++;
 
-				/* client reading servers response */
-				response = server.readLine();
+				/* mutex release */
+				_mutexClientID.unlock();
+				//////////////////////////////////////////////////////////////////////////////////////////////
 
-				/* the time that response come to client */
-				double latency = comlatency.elapsedTime();
+				while (true) {
 
-				/* Increment request counter */
-				requestcomplete++;
+					/**************************************
+					 * PHASE ONE: CLIENT SENDING REQUEST
+					 **************************************/
+					//////////////////////////////////////////////////////////////////////////////////////////////
+					/*
+					 * mutex enclosure in order to protect the procedure of
+					 * sending a request to server
+					 */
+					final Lock _mutex = new ReentrantLock(true);
+					_mutex.lock();
 
-				/* Print response to client console */
-				System.out.println(requestcomplete + " " + response);
+					/* construction of request message */
+					message = "HELLO " + Inet4Address.getLocalHost().getHostAddress() + " " + ClientGlobal.PORT + " "
+							+ "user_" + id + " " + System.lineSeparator();
 
-				System.out.println("latency =" + latency);
+					/* start latency stopwatch */
+					double time_request = System.currentTimeMillis();
 
-				/*
-				 * if the request number reach maximum request number client
-				 * socket close
-				 */
-				if (requestcomplete == maxrequestnum) {
-					
-					output.close();
-					server.close();
-					socket.close();
-					break;
+					/* sending request to server */
+					output.writeBytes(message);
+
+					/* mutex release */
+					_mutex.unlock();
+					//////////////////////////////////////////////////////////////////////////////////////////////
+
+					/***************************************
+					 * PHASE TWO: CLIENT RECEIVONG RESPONSE
+					 ****************************************/
+					//////////////////////////////////////////////////////////////////////////////////////////////
+					/*
+					 * mutex enclosure in order to protect the procedure of
+					 * sending a request to server
+					 */
+					final Lock _mutex1 = new ReentrantLock(true);
+
+					_mutex1.lock();
+
+					/* client reading servers response */
+					response = server.readLine();
+
+					/* the time that response come to client */
+					double time_response = System.currentTimeMillis();
+
+					/* Total Latency sum up */
+					ClientGlobal.LATENCY_TOTAL = ClientGlobal.LATENCY_TOTAL + ((time_response - time_request) / 1000);
+
+					ClientGlobal.TOTAL_REQUEST_COMPLETE++;
+
+					/*
+					 * if the request number reach maximum request number client
+					 * socket close
+					 */
+					if (response.equals("Limit_Reached")) {
+						ClientGlobal.CLIENTS_SERVED++;
+						break;
+					} else {
+						/* Print response to client console */
+						System.out.println(response);
+					}
+
+					/* mutex release */
+					_mutex1.unlock();
+					//////////////////////////////////////////////////////////////////////////////////////////////
+
 				}
 
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+
+				/***************************************
+				 * PHASE THREE: CLIENT PREPARE ANALYTICS
+				 ***************************************/
+				////////////////////////////////////////////////////////////////////////////////////////////
+				if (ClientGlobal.CLIENTS_SERVED == ClientGlobal.CLIENTS_CONNECTED) {
+
+					try {
+						ClientGlobal.getClientsAnalytics();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+				}
+				////////////////////////////////////////////////////////////////////////////////////////////
 			}
 
-		} catch (IOException e) {
-			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * the main method of the client class that creates threads from command
+	 * line the arguments given is the instance ip and the port of server that
+	 * client has to connect
+	 * 
+	 * @param args
+	 *            the command line arguments
+	 */
+	public static void main(String args[]) {
+
+		ClientGlobal.INSTANCE_IP = args[0];
+		ClientGlobal.PORT = Integer.parseInt(args[1]);
+
+		for (int i = 0; i < ClientGlobal.CLIENTS_CONNECTED; i++) {
+			Client t = new Client();
+			t.start();
+
 		}
 
 	}
