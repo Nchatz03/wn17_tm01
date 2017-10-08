@@ -134,7 +134,6 @@ public class TCPWorker implements Runnable {
 					int payloadnumB = payloadnumKB * 1024;
 
 					/* create StringByulider */
-					System.out.println(payloadnumB);
 					StringBuilder payload = new StringBuilder();
 
 					/* Use append to attach payload to response String */
