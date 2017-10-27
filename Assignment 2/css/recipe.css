@@ -1,0 +1,84 @@
+
+body{
+     color: #404040;
+     font-size: 11pt;
+     font-family: Georgia, Garamond, serif;
+  
+}
+h1 { 
+    background-clip: content-box;  
+    background:#F0F0F0;
+    font-family: "Lucida Sans Unicode", helvetica, arial, sans-serif;
+    font-size: 22pt;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: underline;
+    color: #A4A400;
+}
+    
+h2 {
+    background-clip: content-box;  
+    background:#F0F0F0;
+    font-family: "Lucida Sans Unicode", helvetica, arial, sans-serif;
+    font-size: 18pt;
+    font-weight: normal;
+    text-decoration: underline;
+    text-align: left;
+    color: #A4A400;
+}
+
+a {
+   color:#A4A400;
+   font-size: 11pt;
+   font-family: Georgia, Garamond, serif;
+}
+
+div1{
+     text-decoration: underline;
+     title: "tablespoon";
+}
+
+div2{
+     text-decoration: underline;
+     title: "teaspoon";
+}
+
+div3{
+     text-decoration: line-through;
+}
+
+#test{
+     background-clip: content-box;  
+     background:#FFFFA8;
+     background-color:red;
+}
+ 
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
+blockquote{
+       font-style: italic;
+       background-clip: content-box;  
+       background:#FFFFA8;
+}

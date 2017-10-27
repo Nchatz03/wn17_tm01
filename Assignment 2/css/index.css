@@ -1,0 +1,29 @@
+a {
+  color: #A4A400;
+  width: 60%;
+  border: 3px solid #73AD21;
+  padding: 10px;
+}
+
+h1{
+     color: #A4A400;
+     font-size: 50pt;
+} 
+
+body{
+
+    background-size: 1024px 768px;
+    background-color: #e5ffcc;
+  
+}
+
+.container{
+    padding: 100px;
+    width: 60%;
+    text-align: center;
+    font-family: "Lucida Sans Unicode", helvetica, arial, sans-serif;
+    font-size: 22pt;
+    font-weight: bold;
+    text-align: center; 
+  
+}
